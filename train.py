@@ -1,5 +1,3 @@
-from statistics import mode
-import string
 import numpy as np
 import csv
 import matplotlib.pyplot as plt
@@ -64,7 +62,7 @@ try:
     fig, ax = plt.subplots()
     line, = ax.plot([])
 
-    def update_weights(_):
+    def update_weights(i):
         global theta_0, theta_1, epoch
         tmp_theta_0 = (1 / m) * sum(f(X, theta_0, theta_1) - Y)
         tmp_theta_1 = (1 / m) * sum(X * (f(X, theta_0, theta_1) - Y))
@@ -81,9 +79,13 @@ try:
         plt.ylabel('Price ($)')
         plt.xlim(0)
         plt.ylim(0)
-        anim = FuncAnimation(fig, update_weights, frames=1000, interval=20)
         line.set_label('Predicted prices')
         line.set_color('red')
+        anim = FuncAnimation(fig,
+                             update_weights,
+                             repeat=False,
+                             frames=1000,
+                             interval=1)
         plt.legend()
         plt.show()
 
