@@ -1,6 +1,3 @@
-import sys
-
-from numpy import integer
 from model import f
 import argparse
 
@@ -12,13 +9,14 @@ try:
                         type=str,
                         help='car mileage.')
     args = parser.parse_args()
-    mileage = float(args.mileage)
+    mileage_arg = args.mileage
+    mileage = float(mileage_arg)
     file = open('weights', 'r')
     weights = file.readline().split(' ')
     theta_0 = float(weights[0])
     theta_1 = float(weights[1])
     print(f(mileage, theta_0, theta_1))
 except OSError as e:
-    print('The "weights" file doesn\'t exist, try to run "train.py".')
-except Exception as e:
-    print('Something went wrong')
+    print('The weights file doesn\'t exist, try to run the train program.')
+except ValueError as e:
+    print('Please insert a valid number.')

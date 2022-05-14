@@ -1,5 +1,6 @@
 import numpy as np
 import csv
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import argparse
@@ -20,23 +21,33 @@ plt.rcParams.update({
 theta_0 = 0.0
 theta_1 = 0.0
 learning_rate = 0.1
-epoch = 1000
-plot = 0
+epochs = 700
 
-parser = argparse.ArgumentParser(description='Train a Linear model.')
-parser.add_argument('file',
-                    metavar='filename',
-                    type=str,
-                    help='file containing data to be train with.')
-parser.add_argument('--plot',
-                    dest='plot',
+parser = argparse.ArgumentParser(
+    description='Train a linear regression model.')
+parser.add_argument(
+    'file',
+    metavar='filename',
+    type=str,
+    help=
+    'the file containing the data for which the linear model will be trained with.'
+)
+parser.add_argument(
+    '--plot',
+    action='store_const',
+    const=True,
+    default=False,
+    help=
+    'plot trained data with a linear function representing the predictions.')
+parser.add_argument('--calc_precision',
                     action='store_const',
-                    const=1,
-                    default=0,
-                    help='plot data with predictions.')
+                    const=True,
+                    default=False,
+                    help='calculate the precision of the algorithm.')
 args = parser.parse_args()
 plot = args.plot
 filename = args.file
+calc_precision = args.calc_precision
 
 try:
     X = np.array([])
@@ -63,42 +74,46 @@ try:
     line, = ax.plot([])
 
     def update_weights(i):
-        global theta_0, theta_1, epoch
+        global theta_0, theta_1, epochs
         tmp_theta_0 = (1 / m) * sum(f(X, theta_0, theta_1) - Y)
-        tmp_theta_1 = (1 / m) * sum(X * (f(X, theta_0, theta_1) - Y))
+        tmp_theta_1 = (1 / m) * \
+         sum(X * (f(X, theta_0, theta_1) - Y))
         theta_0 -= learning_rate * tmp_theta_0
         theta_1 -= learning_rate * tmp_theta_1
         line.set_data((X * maxX, f(X, theta_0, theta_1) * maxY))
-        epoch -= 1
+        epochs -= 1
 
     def plot_avp_prices(X, Y):
-        global line, epoch
+        global line, epochs
         plt.title('Car mileage versus car price')
         plt.scatter(X * maxX, Y * maxY, label='Actual prices')
         plt.xlabel('Mileage (Km)')
         plt.ylabel('Price ($)')
         plt.xlim(0)
         plt.ylim(0)
-        line.set_label('Predicted prices')
+        line.set_label('Estimated regression line')
         line.set_color('red')
         anim = FuncAnimation(fig,
                              update_weights,
                              repeat=False,
-                             frames=1000,
+                             frames=epochs,
                              interval=1)
         plt.legend()
         plt.show()
 
     if plot == 1:
         plot_avp_prices(X, Y)
-    else:
-        while epoch > 0:
-            update_weights(0)
+    while epochs > 0:
+        update_weights(0)
     theta_0 *= maxY
     theta_1 *= maxY / maxX
-
-    f = open("weights", "w")
-    f.write(f'{theta_0} {theta_1}')
-    f.close()
-except:
+    file = open("weights", "w")
+    file.write(f'{theta_0} {theta_1}')
+    file.close()
+    if calc_precision:
+        Y = Y * maxY
+        X = X * maxX
+        precision = sum((Y - abs(Y - f(X, theta_0, theta_1))) / Y) / m * 100
+        print('precision: %.2f%%' % precision)
+except OSError as e:
     print('The training file does\'t exist.')
