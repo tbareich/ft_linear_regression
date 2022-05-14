@@ -117,3 +117,5 @@ try:
         print('precision: %.2f%%' % precision)
 except OSError as e:
     print('The training file does\'t exist.')
+except Exception as e:
+    print('Something went wrong.')

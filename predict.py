@@ -20,3 +20,5 @@ except OSError as e:
     print('The weights file doesn\'t exist, try to run the train program.')
 except ValueError as e:
     print('Please insert a valid number.')
+except Exception as e:
+    print('Something went wrong.')
